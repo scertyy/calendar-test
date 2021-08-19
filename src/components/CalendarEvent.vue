@@ -77,6 +77,7 @@ export default {
   }
   &:hover {
     overflow: visible;
+    z-index: 100;
     .calendar-event__text {
       width: auto;
     }

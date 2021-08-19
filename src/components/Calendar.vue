@@ -4,7 +4,7 @@
     <div class="calendar__table">
       <div class="calendar__row calendar__row_h-20 calendar__row_mb-15">
         <div class="calendar__button" @click="goToPrevMonth">
-          <left-svg/>
+          <left-svg />
         </div>
         <span class="calendar__month">
           {{ currentDate }}
@@ -13,17 +13,22 @@
           <right-svg />
         </div>
       </div>
-      <div class="calendar__row">
+      <div class="calendar__header-wrapper">
         <div class="calendar__header" v-for="item in weekdays" :key="item">
           {{ item }}
         </div>
       </div>
+      <!--      <div class="calendar__row">-->
+      <!--        <div class="calendar__header" v-for="item in weekdays" :key="item">-->
+      <!--          {{ item }}-->
+      <!--        </div>-->
+      <!--      </div>-->
       <div class="calendar__grid">
         <template v-for="week in calendarDays">
           <calendar-day
             v-for="(date, index) in week"
             :disabled="isPrevDate(date.year, date.month, date.day)"
-            :day-off="isWeekends(date.year, date.month, date.day)"
+            :day-off="isWeekend(date.year, date.month, date.day)"
             :today="isToday(date.year, date.month, date.day)"
             :key="date.day + index * 1000 + 'day'"
             :day="date.day"
@@ -38,11 +43,12 @@
 </template>
 
 <script>
-import moment from "moment";
 import CalendarDay from "./CalendarDay";
 import LeftSvg from "./svg/LeftSvg";
 import RightSvg from "./svg/RightSvg";
-moment.locale("ru");
+import dateCompare from "../services/dateCompare";
+import dateResolver from "../services/dateResolver";
+import dateCalculator from "../services/dateCalculator";
 export default {
   name: "Calendar",
   components: { RightSvg, LeftSvg, CalendarDay },
@@ -61,152 +67,72 @@ export default {
     };
   },
   methods: {
-    fillCalendarDays(year, month) {
-      //привязать события к дням
-
-      //get number day of week, 0 - monday, 6 - sunday
-      function getDayOfWeek(date) {
-        let day = moment(date).day();
-        //do sunday last day (6 instead 0)
-        if (day == 0) day = 7;
-        return day - 1;
-      }
-      //return formattedDate object
-      let index = 0;
-      let mon = month;
-      this.calendarDays = [[]];
-      this.currentMonth = mon;
+    fillCalendar(year, month) {
+      this.currentMonth = month;
       this.currentYear = year;
-      let date = moment([year, mon]);
-      let prevDate = moment()
-        .year(year)
-        .month(mon - 1);
-      prevDate.date(prevDate.daysInMonth());
-      let nextDate = moment()
-        .year(year)
-        .month(mon + 1);
-      nextDate.date(1);
-      //add days from prev month before 1st day current month
-      for (let i = getDayOfWeek(date); i > 0; i--) {
-        this.calendarDays[index][i - 1] = this.getDateObject(prevDate);
-        prevDate.date(prevDate.date() - 1);
-      }
-      while (date.month() === mon) {
-        this.calendarDays[index].push(this.getDateObject(date));
-        if (getDayOfWeek(date) % 7 === 6) {
-          // if sunday then add new row
-          index++;
-          this.calendarDays[index] = [];
-        }
-        date.date(date.date() + 1);
-      }
-      // if last row of days is empty then remove this row
-      if (!this.calendarDays[index].length) {
-        this.calendarDays.pop();
-      }
-      //if last day isnt sunday then add days from next month
-      if (getDayOfWeek(date) !== 0) {
-        for (let i = getDayOfWeek(date); i < 7; i++) {
-          this.calendarDays[index].push(this.getDateObject(nextDate));
-          nextDate.date(nextDate.date() + 1);
-        }
-      }
+      this.calendarDays = dateResolver.getDatesInMonthWithEvents(
+        year,
+        month,
+        this.events
+      );
     },
     //fill weekday names
     fillWeekDays() {
-      let weekdays = moment.weekdays();
-      weekdays.push(weekdays.shift());
-      this.weekdays = weekdays;
+      this.weekdays = dateResolver.getWeekdays();
     },
     //fill months names
     fillMonths() {
-      this.months = moment.months();
+      this.months = dateResolver.getAllMonths();
     },
     //goto next month
     goToNextMonth() {
-      let incMonth = this.currentMonth + 1;
-      let year = this.currentYear;
-      if (incMonth > 11) {
-        incMonth = 0;
-        year++;
-      }
-      let k = moment([year, incMonth]);
-      this.fillCalendarDays(k.year(), k.month());
+      const nextM = dateCalculator.calculateNextMonth(
+        this.currentYear,
+        this.currentMonth
+      );
+      this.fillCalendar(
+        dateResolver.getYear(nextM),
+        dateResolver.getMonth(nextM)
+      );
     },
     //goto prev month
     goToPrevMonth() {
-      let decMonth = this.currentMonth - 1;
-      let year = this.currentYear;
-      if (decMonth < 0) {
-        decMonth = 11;
-        year--;
-      }
-      let k = moment([year, decMonth]);
-      this.fillCalendarDays(k.year(), k.month());
+      const nextM = dateCalculator.calculatePrevMonth(
+        this.currentYear,
+        this.currentMonth
+      );
+      this.fillCalendar(
+        dateResolver.getYear(nextM),
+        dateResolver.getMonth(nextM)
+      );
     },
-    //is the past date (return true/false)
-    //params: year, month, date
     isPrevDate(y, m, d) {
-      const currentDate = moment();
-
-      if (currentDate.year() > y) return true;
-      if (currentDate.year() < y) return false;
-
-      if (currentDate.month() > m) return true;
-      if (currentDate.month() < m) return false;
-
-      if (currentDate.date() > d) return true;
-
-      return false;
+      return dateCompare.isPrevDate(y, m, d);
     },
-    //is the past date (return true/false)
-    //params: moment, moment
-    getDateObject(date) {
-      const dateObject = {
-        day: date.date(),
-        month: date.month(),
-        year: date.year(),
-        events: [],
-      };
-      dateObject.events = this.events.filter((i) =>
-        this.isSameDay(i.date, date)
-      );
-      return dateObject;
-    },
-    isSameDay(fDate, sDate) {
-      return (
-        fDate.year() === sDate.year() &&
-        fDate.month() === sDate.month() &&
-        fDate.date() === sDate.date()
-      );
-    },
-    isWeekends(y, m, d) {
-      let day = moment().year(y).month(m).date(d).day();
-      return day === 0 || day === 6;
+    isWeekend(y, m, d) {
+      return dateCompare.isWeekend(y, m, d);
     },
     isToday(y, m, d) {
-      const today = moment();
-      return y === today.year() && m === today.month() && d === today.date();
+      return dateCompare.isToday(y, m, d);
     },
   },
   created() {
-    const today = moment();
+    const today = dateResolver.getToday();
     this.fillWeekDays();
     this.fillMonths();
-    this.fillCalendarDays(today.year(), today.month());
+    this.fillCalendar(
+      dateResolver.getYear(today),
+      dateResolver.getMonth(today)
+    );
   },
   computed: {
     currentDate() {
       let date = this.months[this.currentMonth];
-      if (+moment().year() !== +this.currentYear) {
+      if (dateCompare.isPresentYear(this.currentYear)) {
         date += ` ${this.currentYear}`;
       }
       return date;
     },
-
-    // currentMonth() {
-    //   return "Апрель";
-    // },
   },
 };
 </script>
@@ -239,19 +165,25 @@ export default {
     margin-bottom: 15px;
   }
 }
+.calendar__header-wrapper {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-gap: var(--calendar-gap);
+  grid-auto-rows: 1fr;
+  width: 100%;
+}
 .calendar__header {
   flex: 1;
   flex-shrink: 0;
-
   font-size: 14px;
   text-align: right;
   font-weight: bold;
   text-transform: uppercase;
   border: 3px solid inherit;
-  margin-right: var(--calendar-gap);
-  &:last-of-type {
-    margin-right: 0;
-  }
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .calendar__month {
   margin: 0 15px;

@@ -1,4 +1,9 @@
-# calendar app. Event Visualization Component. 
+# calendar app. 
+
+## Event Visualization Component.
+```
+Calendar-component which can visualize events Array.
+```
 
 ## Project setup
 ```
