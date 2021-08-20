@@ -11,6 +11,10 @@ Example:
     </template>
 </Calendar>
 ```
+## Deployment
+```
+https://scertyy.github.io/calendar-test/
+```
 
 ## Project setup
 ```
