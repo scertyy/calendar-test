@@ -3,6 +3,13 @@
 ## Event Visualization Component.
 ```
 Calendar-component which can visualize events Array.
+For add custom calendar date use slot in Calendar component
+Example: 
+<Calendar>
+    <template #day="{ day }">
+        <div>день {{ day.day }};</div>
+    </template>
+</Calendar>
 ```
 
 ## Project setup

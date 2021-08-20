@@ -1,19 +1,19 @@
-import moment from "moment";
+import moment from 'moment'
 export default {
     id: {
         type: [Number, String],
-        required: true,
+        required: true
     },
     name: {
         type: String,
-        required: true,
+        required: true
     },
     date: {
         type: moment(),
-        required: true,
+        required: true
     },
     eventType: {
         type: String,
-        required: true,
-    },
-};
+        required: true
+    }
+}

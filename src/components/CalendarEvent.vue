@@ -1,32 +1,31 @@
 <template>
     <div class="calendar-event" :class="classes">
         <div class="calendar-event__text">
-            {{ validTime }} {{ event.name }} {{ event.name }} {{ event.name }}
-            {{ event.name }} {{ event.name }} {{ event.name }}
+            {{ validTime }} {{ event.name }}
         </div>
     </div>
 </template>
 
 <script>
-import calendarEventModel from "../models/calendarEventModel";
+import calendarEventModel from '../models/calendarEventModel'
 
 export default {
     props: {
-        event: calendarEventModel,
+        event: calendarEventModel
     },
     computed: {
-        validTime() {
-            return this.event.date.format("HH:mm");
+        validTime () {
+            return this.event.date.format('HH:mm')
         },
-        classes() {
+        classes () {
             return {
-                "calendar-event_red": this.event.eventType === "red",
-                "calendar-event_orange": this.event.eventType === "orange",
-                "calendar-event_green": this.event.eventType === "green",
-            };
-        },
-    },
-};
+                'calendar-event_red': this.event.eventType === 'red',
+                'calendar-event_orange': this.event.eventType === 'orange',
+                'calendar-event_green': this.event.eventType === 'green'
+            }
+        }
+    }
+}
 </script>
 
 <style lang="scss">
@@ -50,6 +49,7 @@ export default {
       background: var(--red);
     }
   }
+
   &.calendar-event_orange {
     background: var(--orange);
     color: var(--dark-orange);
@@ -57,6 +57,7 @@ export default {
       background: var(--orange);
     }
   }
+
   &.calendar-event_green {
     background: var(--green);
     color: var(--dark-green);
@@ -64,6 +65,7 @@ export default {
       background: var(--green);
     }
   }
+
   &__text {
     width: 100%;
     text-overflow: ellipsis;
@@ -75,6 +77,7 @@ export default {
     padding: 3px;
     border-radius: 6px;
   }
+
   &:hover {
     overflow: visible;
     z-index: 100;
@@ -82,5 +85,6 @@ export default {
       width: auto;
     }
   }
+
 }
 </style>

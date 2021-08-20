@@ -1,14 +1,14 @@
 module.exports = {
   root: true,
   env: {
-    node: true,
+    node: true
   },
   extends: [
     'plugin:vue/essential',
-    // '@vue/standard'
+    '@vue/standard'
   ],
   parserOptions: {
-    ecmaVersion: 2021,
+    ecmaVersion: 2020,
     parser: '@babel/eslint-parser'
   },
   rules: {
@@ -21,4 +21,4 @@ module.exports = {
       ignores: []
     }]
   }
-};
+}

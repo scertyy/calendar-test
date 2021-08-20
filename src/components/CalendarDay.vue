@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import CalendarEvent from "./CalendarEvent";
+import CalendarEvent from './CalendarEvent'
 export default {
     components: { CalendarEvent },
     props: {
@@ -21,29 +21,28 @@ export default {
         events: Array,
         disabled: Boolean,
         dayOff: Boolean,
-        today: Boolean,
+        today: Boolean
     },
     computed: {
-        sortedEvents() {
-            let events = this.events;
-            return events.sort((a, b) => a.date.millisecond() - b.date.millisecond());
+        sortedEvents () {
+            const events = this.events
+            return events.sort((a, b) => a.date.millisecond() - b.date.millisecond())
         },
-        classes() {
+        classes () {
             return {
-                "calendar-day_disabled": this.disabled,
-                "calendar-day_day-off": this.dayOff,
-                "calendar-day_today": this.today,
-            };
-        },
-    },
-};
+                'calendar-day_disabled': this.disabled,
+                'calendar-day_day-off': this.dayOff,
+                'calendar-day_today': this.today
+            }
+        }
+    }
+}
 </script>
 
 <style lang="scss">
 .calendar-day {
   display: flex;
   flex-direction: column;
-
   font-weight: normal;
   font-style: normal;
   font-size: 16px;
@@ -53,19 +52,23 @@ export default {
   height: 100%;
   border-radius: 3px;
   border: 3px solid var(--grey);
+
   &.calendar-day_disabled {
     background: var(--grey);
     color: var(--dark-grey);
   }
+
   &.calendar-day_day-off {
     color: var(--lilac);
   }
+
   &.calendar-day_today {
     color: var(--green);
   }
-}
-.calendar-day__name {
-  font-weight: bold;
-  text-align: right;
+
+  &__name {
+    font-weight: bold;
+    text-align: right;
+  }
 }
 </style>

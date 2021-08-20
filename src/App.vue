@@ -1,22 +1,19 @@
 <template>
     <div id="app">
         <Calendar :events="$store.state.events">
-            <!--      <template #day="{day}">-->
-            <!--        <div>день {{day}};</div>-->
-            <!--      </template>-->
         </Calendar>
     </div>
 </template>
 
 <script>
-import Calendar from "./components/Calendar.vue";
+import Calendar from './components/Calendar.vue'
 
 export default {
-    name: "App",
+    name: 'App',
     components: {
-        Calendar,
-    },
-};
+        Calendar
+    }
+}
 </script>
 
 <style lang="scss">
