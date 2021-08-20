@@ -1,139 +1,138 @@
 <!--calendar component for visualise events-->
 <template>
-  <div class="calendar">
-    <div class="calendar__table">
-      <div class="calendar__row calendar__row_h-20 calendar__row_mb-15">
-        <div class="calendar__button" @click="goToPrevMonth">
-          <left-svg />
+    <div class="calendar">
+        <div class="calendar__table">
+            <div class="calendar__row">
+                <div class="calendar__button" @click="goToPrevMonth">
+                    <left-arrow />
+                </div>
+                <span class="calendar__month">
+                    {{ currentDate }}
+                </span>
+                <div class="calendar__button" @click="goToNextMonth">
+                    <right-arrow />
+                </div>
+            </div>
+            <div class="calendar__header-wrapper">
+                <div class="calendar__header" v-for="item in weekdays" :key="item">
+                    {{ item }}
+                </div>
+            </div>
+            <div class="calendar__grid">
+                <template v-for="week in calendarDays">
+                    <calendar-day
+                        v-for="(date, index) in week"
+                        :disabled="isPrevDate(date.year, date.month, date.day)"
+                        :day-off="isWeekend(date.year, date.month, date.day)"
+                        :today="isToday(date.year, date.month, date.day)"
+                        :key="date.day + index * 1000 + 'day'"
+                        :day="date.day"
+                        :events="date.events"
+                    >
+                        {{ date.day }}
+                    </calendar-day>
+                </template>
+            </div>
         </div>
-        <span class="calendar__month">
-          {{ currentDate }}
-        </span>
-        <div class="calendar__button" @click="goToNextMonth">
-          <right-svg />
-        </div>
-      </div>
-      <div class="calendar__header-wrapper">
-        <div class="calendar__header" v-for="item in weekdays" :key="item">
-          {{ item }}
-        </div>
-      </div>
-      <!--      <div class="calendar__row">-->
-      <!--        <div class="calendar__header" v-for="item in weekdays" :key="item">-->
-      <!--          {{ item }}-->
-      <!--        </div>-->
-      <!--      </div>-->
-      <div class="calendar__grid">
-        <template v-for="week in calendarDays">
-          <calendar-day
-            v-for="(date, index) in week"
-            :disabled="isPrevDate(date.year, date.month, date.day)"
-            :day-off="isWeekend(date.year, date.month, date.day)"
-            :today="isToday(date.year, date.month, date.day)"
-            :key="date.day + index * 1000 + 'day'"
-            :day="date.day"
-            :events="date.events"
-          >
-            {{ date.day }}
-          </calendar-day>
-        </template>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
 import CalendarDay from "./CalendarDay";
-import LeftSvg from "./svg/LeftSvg";
-import RightSvg from "./svg/RightSvg";
-import dateCompare from "../services/dateCompare";
+import LeftArrow from "./svg/LeftArrow";
+import RightArrow from "./svg/RightArrow";
+import dateComparer from "../services/dateComparer";
 import dateResolver from "../services/dateResolver";
 import dateCalculator from "../services/dateCalculator";
 export default {
-  name: "Calendar",
-  components: { RightSvg, LeftSvg, CalendarDay },
-  props: {
-    events: {
-      type: Array,
+    name: "Calendar",
+    components: { RightArrow, LeftArrow, CalendarDay },
+    props: {
+        events: {
+            type: Array,
+        },
     },
-  },
-  data() {
-    return {
-      calendarDays: [[]],
-      weekdays: [],
-      months: [],
-      currentYear: null,
-      currentMonth: null,
-    };
-  },
-  methods: {
-    fillCalendar(year, month) {
-      this.currentMonth = month;
-      this.currentYear = year;
-      this.calendarDays = dateResolver.getDatesInMonthWithEvents(
-        year,
-        month,
-        this.events
-      );
+    data() {
+        return {
+            calendarDays: [[]],
+            weekdays: [],
+            months: [],
+            currentYear: null,
+            currentMonth: null,
+        };
     },
-    //fill weekday names
-    fillWeekDays() {
-      this.weekdays = dateResolver.getWeekdays();
+    methods: {
+        fillCalendar(year, month) {
+            this.currentMonth = month;
+            this.currentYear = year;
+            const calendarDaysWithoutEvents = dateResolver.getDatesInMonth(
+                year,
+                month,
+            );
+            this.calendarDays = calendarDaysWithoutEvents.map(row => row.map(item => {
+                let newItem = item;
+                newItem.events = this.getCurrentDayEvents(newItem);
+                return newItem;
+            }))
+        },
+        getCurrentDayEvents(item) {
+            let date = dateResolver.getDate(item.year, item.month, item.day)
+            return this.events.filter((i) => dateResolver.isSameDay(i.date, date))
+        },
+        fillWeekDays() {
+            this.weekdays = dateResolver.getWeekdays();
+        },
+        fillMonths() {
+            this.months = dateResolver.getAllMonths();
+        },
+        goToNextMonth() {
+            const nextM = dateCalculator.calculateNextMonth(
+                this.currentYear,
+                this.currentMonth
+            );
+            this.fillCalendar(
+                dateResolver.getYear(nextM),
+                dateResolver.getMonth(nextM)
+            );
+        },
+        goToPrevMonth() {
+            const nextM = dateCalculator.calculatePrevMonth(
+                this.currentYear,
+                this.currentMonth
+            );
+            this.fillCalendar(
+                dateResolver.getYear(nextM),
+                dateResolver.getMonth(nextM)
+            );
+        },
+        isPrevDate(y, m, d) {
+            return dateComparer.isPrevDate(y, m, d);
+        },
+        isWeekend(y, m, d) {
+            return dateComparer.isWeekend(y, m, d);
+        },
+        isToday(y, m, d) {
+            return dateComparer.isToday(y, m, d);
+        },
     },
-    //fill months names
-    fillMonths() {
-      this.months = dateResolver.getAllMonths();
+    created() {
+        const today = dateResolver.getToday();
+        this.fillWeekDays();
+        this.fillMonths();
+        this.fillCalendar(
+            dateResolver.getYear(today),
+            dateResolver.getMonth(today)
+        );
     },
-    //goto next month
-    goToNextMonth() {
-      const nextM = dateCalculator.calculateNextMonth(
-        this.currentYear,
-        this.currentMonth
-      );
-      this.fillCalendar(
-        dateResolver.getYear(nextM),
-        dateResolver.getMonth(nextM)
-      );
+    computed: {
+        currentDate() {
+            let date = this.months[this.currentMonth];
+            if (dateComparer.isCurrentYear(this.currentYear)) {
+                date += ` ${this.currentYear}`;
+            }
+            return date;
+        },
     },
-    //goto prev month
-    goToPrevMonth() {
-      const nextM = dateCalculator.calculatePrevMonth(
-        this.currentYear,
-        this.currentMonth
-      );
-      this.fillCalendar(
-        dateResolver.getYear(nextM),
-        dateResolver.getMonth(nextM)
-      );
-    },
-    isPrevDate(y, m, d) {
-      return dateCompare.isPrevDate(y, m, d);
-    },
-    isWeekend(y, m, d) {
-      return dateCompare.isWeekend(y, m, d);
-    },
-    isToday(y, m, d) {
-      return dateCompare.isToday(y, m, d);
-    },
-  },
-  created() {
-    const today = dateResolver.getToday();
-    this.fillWeekDays();
-    this.fillMonths();
-    this.fillCalendar(
-      dateResolver.getYear(today),
-      dateResolver.getMonth(today)
-    );
-  },
-  computed: {
-    currentDate() {
-      let date = this.months[this.currentMonth];
-      if (dateCompare.isPresentYear(this.currentYear)) {
-        date += ` ${this.currentYear}`;
-      }
-      return date;
-    },
-  },
 };
 </script>
 
@@ -157,13 +156,8 @@ export default {
   width: 100%;
   display: flex;
   align-items: center;
-  margin-bottom: 3px;
-  &.calendar__row_h-20 {
-    height: 20px;
-  }
-  &.calendar__row_mb-15 {
-    margin-bottom: 15px;
-  }
+  height: 20px;
+  margin-bottom: 15px;
 }
 .calendar__header-wrapper {
   display: grid;

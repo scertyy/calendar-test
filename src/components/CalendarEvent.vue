@@ -1,31 +1,31 @@
 <template>
-  <div class="calendar-event" :class="classes">
-    <div class="calendar-event__text">
-      {{ validTime }} {{ event.name }} {{ event.name }} {{ event.name }}
-      {{ event.name }} {{ event.name }} {{ event.name }}
+    <div class="calendar-event" :class="classes">
+        <div class="calendar-event__text">
+            {{ validTime }} {{ event.name }} {{ event.name }} {{ event.name }}
+            {{ event.name }} {{ event.name }} {{ event.name }}
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
 import calendarEventModel from "../models/calendarEventModel";
 
 export default {
-  props: {
-    event: calendarEventModel,
-  },
-  computed: {
-    validTime() {
-      return this.event.date.format("HH:mm");
+    props: {
+        event: calendarEventModel,
     },
-    classes() {
-      return {
-        "calendar-event_red": this.event.eventType === "red",
-        "calendar-event_orange": this.event.eventType === "orange",
-        "calendar-event_green": this.event.eventType === "green",
-      };
+    computed: {
+        validTime() {
+            return this.event.date.format("HH:mm");
+        },
+        classes() {
+            return {
+                "calendar-event_red": this.event.eventType === "red",
+                "calendar-event_orange": this.event.eventType === "orange",
+                "calendar-event_green": this.event.eventType === "green",
+            };
+        },
     },
-  },
 };
 </script>
 

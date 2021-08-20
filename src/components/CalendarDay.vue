@@ -1,40 +1,41 @@
+<!--component for single date in calendar-->
 <template>
-  <div class="calendar-day" :class="classes">
-    <div class="calendar-day__name">
-      {{ day }}
+    <div class="calendar-day" :class="classes">
+        <div class="calendar-day__name">
+            {{ day }}
+        </div>
+        <calendar-event
+            v-for="event in sortedEvents"
+            :key="event.id"
+            :event="event"
+        />
     </div>
-    <calendar-event
-      v-for="event in sortedEvents"
-      :key="event.id"
-      :event="event"
-    />
-  </div>
 </template>
 
 <script>
 import CalendarEvent from "./CalendarEvent";
 export default {
-  components: { CalendarEvent },
-  props: {
-    day: [Number, String],
-    events: Array,
-    disabled: Boolean,
-    dayOff: Boolean,
-    today: Boolean,
-  },
-  computed: {
-    sortedEvents() {
-      let events = this.events;
-      return events.sort((a, b) => a.date.millisecond() - b.date.millisecond());
+    components: { CalendarEvent },
+    props: {
+        day: [Number, String],
+        events: Array,
+        disabled: Boolean,
+        dayOff: Boolean,
+        today: Boolean,
     },
-    classes() {
-      return {
-        "calendar-day_disabled": this.disabled,
-        "calendar-day_day-off": this.dayOff,
-        "calendar-day_today": this.today,
-      };
+    computed: {
+        sortedEvents() {
+            let events = this.events;
+            return events.sort((a, b) => a.date.millisecond() - b.date.millisecond());
+        },
+        classes() {
+            return {
+                "calendar-day_disabled": this.disabled,
+                "calendar-day_day-off": this.dayOff,
+                "calendar-day_today": this.today,
+            };
+        },
     },
-  },
 };
 </script>
 

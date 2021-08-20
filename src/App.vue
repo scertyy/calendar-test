@@ -1,21 +1,21 @@
 <template>
-  <div id="app">
-    <Calendar :events="$store.state.events">
-<!--      <template #day="{day}">-->
-<!--        <div>день {{day}};</div>-->
-<!--      </template>-->
-    </Calendar>
-  </div>
+    <div id="app">
+        <Calendar :events="$store.state.events">
+            <!--      <template #day="{day}">-->
+            <!--        <div>день {{day}};</div>-->
+            <!--      </template>-->
+        </Calendar>
+    </div>
 </template>
 
 <script>
 import Calendar from "./components/Calendar.vue";
 
 export default {
-  name: "App",
-  components: {
-    Calendar,
-  },
+    name: "App",
+    components: {
+        Calendar,
+    },
 };
 </script>
 
@@ -25,6 +25,7 @@ export default {
 }
 body {
   margin: 0;
+  overflow: hidden;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
