@@ -19,13 +19,13 @@
                 </div>
             </div>
             <div class="calendar__grid">
-                <template v-for="week in calendarDays">
+                <template v-for="(week, parentIndex) in calendarDays">
                     <slot name="day" :day="date" v-for="(date, index) in week">
                         <calendar-day
                             :disabled="isPrevDate(date.year, date.month, date.day)"
                             :day-off="isWeekend(date.year, date.month, date.day)"
                             :today="isToday(date.year, date.month, date.day)"
-                            :key="date.day + index * 1000 + 'day'"
+                            :key="parentIndex * 100 + index + 'day'"
                             :day="date.day"
                             :events="date.events"
                         >
